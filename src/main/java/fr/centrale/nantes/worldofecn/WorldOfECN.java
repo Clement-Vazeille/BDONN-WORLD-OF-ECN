@@ -39,10 +39,10 @@ public class WorldOfECN {
         
         System.out.println("id joueur" + playerId);
         
-        database.saveWorld(playerId, "Test Game 1", "Start", world1);
+        // database.saveWorld(playerId, "Test Game 1", "Start", world1);
         
         // Retreive World
-        World world2 = database.readWorld(playerId, "Test Game 1", "Start");
+        // World world2 = database.readWorld(playerId, "Test Game 1", "Start");
         // Check you retreived the values
         
         database.disconnect();

@@ -159,8 +159,8 @@ public class DatabaseTools {
                 stmt = this.connection.prepareStatement( query );
                 stmt.setInt(1,idPartie);
                 stmt.setString(2,nomPartie);
-                stmt.setInt(3,taillex);
-                stmt.setInt(4,tailley);
+                stmt.setInt(3,monde.getWidth());
+                stmt.setInt(4,monde.getHeight());
                 stmt.setInt(5,idJoueur);
                 stmt.executeUpdate();
                 stmt.close();
@@ -191,7 +191,7 @@ public class DatabaseTools {
                 stmt = this.connection.prepareStatement( query );
                 rs = stmt.executeQuery();
                 if (rs.next()) {idSauvegarde = rs.getInt("idsauvegarde") + 1;}
-                else {idPartie = 1;}
+                else {idSauvegarde = 1;}
                 stmt.close();
                 
                 //create a new sauvegarde
