@@ -14,6 +14,8 @@ import java.sql.SQLException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 import fr.centrale.nantes.worldofecn.world.World;
 
@@ -108,11 +110,87 @@ public class DatabaseTools {
         
         // Create a new "partie" in database if it does not exists and link it to the player
         // Save partie's infos in the sauvegarde (height, width, ...) if necessary
+        int idPartie = -1;        
+        try {
+            this.connect();
+            
+            //find sauvegarde for the partie if exist
+            String query = "SELECT idpartie FROM partie WHERE nompartie=?";
+            PreparedStatement stmt = this.connection.prepareStatement( query );
+            stmt.setString(1,nomPartie);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {idPartie = rs.getInt("idpartie");}
+            stmt.close();
+            
+            if (idPartie == -1) {
+                
+                //find a free id for new partie
+                query = "SELECT MAX idpartie FROM partie";
+                stmt = this.connection.prepareStatement( query );
+                rs = stmt.executeQuery();
+                if (rs.next()) {idPartie = rs.getInt("idpartie") + 1;}
+                else {idPartie = 1;}
+                stmt.close();
+                
+                //create a new partie
+                query = "INSERT INTO sauvegarde (idpartie, nompartie, taillex, tailley, idjoueur) VALUES (?,?,?,?,?)";
+                stmt = this.connection.prepareStatement( query );
+                stmt.setInt(1,idPartie);
+                stmt.setString(2,nomPartie);
+                stmt.setInt(3,taillex);
+                stmt.setInt(4,tailley);
+                stmt.setInt(5,idJoueur);
+                stmt.executeUpdate();
+                stmt.close();
+            }
+            this.disconnect();
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
-        // Create a new sauvegarde if it does not exist for the partie
+        // Create a new partie if it does not exist for the partie
         // Update sauvegarde infos for the partie
+        int idSauvegarde = -1;
+        try {
+            this.connect();
+            
+            //find sauvegarde for the partie if exist
+            String query = "SELECT idsauvegarde FROM sauvegarde WHERE nomsauvegarde=?";
+            PreparedStatement stmt = this.connection.prepareStatement( query );
+            stmt.setString(1,nomSauvegarde);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {idSauvegarde = rs.getInt("idsauvegarde");}
+            stmt.close();
+            
+            if (idSauvegarde == -1) {
+                
+                //find a free id for new sauvegarde
+                query = "SELECT MAX idsauvegarde FROM sauvegarde";
+                stmt = this.connection.prepareStatement( query );
+                rs = stmt.executeQuery();
+                if (rs.next()) {idSauvegarde = rs.getInt("idsauvegarde") + 1;}
+                else {idPartie = 1;}
+                stmt.close();
+                
+                //create a new sauvegarde
+                query = "INSERT INTO sauvegarde (iidsauvegarde, dpartie, nomsauvegarde) VALUES (?,?,?)";
+                stmt = this.connection.prepareStatement( query );
+                stmt.setInt(1,idSauvegarde);
+                stmt.setInt(2,idPartie);
+                stmt.setString(3,nomSauvegarde);
+                stmt.executeUpdate();
+                stmt.close();
+            }
+            this.disconnect();
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         // Remove existing elements de jeu for the sauvegarde
+        monde.removeFromDatabase(this.connection);
+        
         // Save world's elementdejeu in database
+        monde.saveToDatabase(this.connection, nomPartie, nomSauvegarde);
         
         // Save player infos and the player's creature infos for this partie
         
