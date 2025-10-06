@@ -17,6 +17,9 @@ import java.util.logging.Logger;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
 import fr.centrale.nantes.worldofecn.world.World;
 
 /**
@@ -62,6 +65,7 @@ public class DatabaseTools {
      * Get connection to the database
      */
     public void connect() {
+        System.out.println("connection de " + login + " mdp " + password + " url " + url);
         if ((this.connection == null) && (url != null) && (! url.isEmpty())) {
             try {
                 this.connection = DriverManager.getConnection(url, login, password);
@@ -95,6 +99,24 @@ public class DatabaseTools {
         // TO BE DEFINED
         // retreive player ID according to his/her name (unique) and password from database
         // may return null if player is not found, the database ID if found.
+        String query = "Select idjoueur FROM Joueur WHERE nomjoueur=? AND motdepasse=?";
+        try{
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1,nomJoueur);
+            stmt.setString(2,password);
+
+            ResultSet rs = stmt.executeQuery();
+
+            Integer resultID;
+            if (rs.next()) {
+                resultID = Integer.parseInt(rs.getString("idjoueur"));
+                return resultID;
+            }
+            stmt.close();
+        }
+        catch (SQLException ex) {
+                Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+            }
         return null;
     }
 
