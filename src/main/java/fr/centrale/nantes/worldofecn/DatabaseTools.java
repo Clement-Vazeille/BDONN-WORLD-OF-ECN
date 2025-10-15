@@ -137,9 +137,10 @@ public class DatabaseTools {
             this.connect();
             
             //find sauvegarde for the partie if exist
-            String query = "SELECT idpartie FROM partie WHERE nompartie=?";
+            String query = "SELECT idpartie FROM partie WHERE idjoueur=? AND nompartie=?";
             PreparedStatement stmt = this.connection.prepareStatement( query );
-            stmt.setString(1,nomPartie);
+            stmt.setInt(1,idJoueur);
+            stmt.setString(2,nomPartie);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {idPartie = rs.getInt("idpartie");}
             stmt.close();
@@ -258,7 +259,32 @@ public class DatabaseTools {
         // TO BE DEFINED
         
         // Retreive partie infos for the player
+        int idPartie = -1;
+        try {
+            String query = "SELECT idpartie FROM partie WHERE idjoueur=? AND nompartie=?";
+            PreparedStatement stmt = this.connection.prepareStatement( query );
+            stmt.setInt(1,idJoueur);
+            stmt.setString(2,nomPartie);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {idPartie = rs.getInt("idpartie");}
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         // Retreive sauvegarde infos for the partie
+        int idSauvegarde = -1;
+        try {
+            String query = "SELECT idsauvegarde FROM sauvegarde WHERE idpartie=? AND nomsauvegarde=?";
+            PreparedStatement stmt = this.connection.prepareStatement( query );
+            stmt.setInt(1,idPartie);
+            stmt.setString(2,nomSauvegarde);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {idSauvegarde = rs.getInt("idsauvegarde");}
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         // Retreive world infos
         // Generate object world according to the infos
@@ -285,10 +311,38 @@ public class DatabaseTools {
         // TO BE DEFINED
         
         // Retreive partie infos for the player
+        int idPartie = -1;
+        try {
+            String query = "SELECT idpartie FROM partie WHERE idjoueur=? AND nompartie=?";
+            PreparedStatement stmt = this.connection.prepareStatement( query );
+            stmt.setInt(1,idJoueur);
+            stmt.setString(2,nomPartie);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {idPartie = rs.getInt("idpartie");}
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         // Retreive sauvegarde infos for the partie
+        int idSauvegarde = -1;
+        try {
+            String query = "SELECT idsauvegarde FROM sauvegarde WHERE idpartie=? AND nomsauvegarde=?";
+            PreparedStatement stmt = this.connection.prepareStatement( query );
+            stmt.setInt(1,idPartie);
+            stmt.setString(2,nomSauvegarde);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {idSauvegarde = rs.getInt("idsauvegarde");}
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
-        // remove elements de jeu linked to the sauvegarde
         // remove sauvegarde
         // remove if partie has no mode sauvegarde, remove partie
+        
+        
+        // remove elements de jeu linked to the sauvegarde
+        
     }
 }
