@@ -109,7 +109,7 @@ public class DatabaseTools {
 
             Integer resultID;
             if (rs.next()) {
-                resultID = Integer.parseInt(rs.getString("idjoueur"));
+                resultID = Integer.valueOf(rs.getString("idjoueur"));
                 return resultID;
             }
             stmt.close();
@@ -147,15 +147,15 @@ public class DatabaseTools {
             if (idPartie == -1) {
                 
                 //find a free id for new partie
-                query = "SELECT MAX idpartie FROM partie";
+                query = "SELECT MAX(idpartie) AS idmax FROM partie";
                 stmt = this.connection.prepareStatement( query );
                 rs = stmt.executeQuery();
-                if (rs.next()) {idPartie = rs.getInt("idpartie") + 1;}
+                if (rs.next()) {idPartie = rs.getInt("idmax") + 1;}
                 else {idPartie = 1;}
                 stmt.close();
                 
                 //create a new partie
-                query = "INSERT INTO sauvegarde (idpartie, nompartie, taillex, tailley, idjoueur) VALUES (?,?,?,?,?)";
+                query = "INSERT INTO partie (idpartie, nompartie, taillex, tailley, idjoueur) VALUES (?,?,?,?,?)";
                 stmt = this.connection.prepareStatement( query );
                 stmt.setInt(1,idPartie);
                 stmt.setString(2,nomPartie);
@@ -170,32 +170,35 @@ public class DatabaseTools {
             Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        // Create a new partie if it does not exist for the partie
+        // Create a new sauvegarde if it does not exist for the partie
         // Update sauvegarde infos for the partie
         int idSauvegarde = -1;
         try {
             this.connect();
             
             //find sauvegarde for the partie if exist
-            String query = "SELECT idsauvegarde FROM sauvegarde WHERE nomsauvegarde=?";
+            String query = "SELECT idsauvegarde FROM sauvegarde WHERE idpartie=? AND nomsauvegarde=?";
             PreparedStatement stmt = this.connection.prepareStatement( query );
-            stmt.setString(1,nomSauvegarde);
+            stmt.setInt(1,idPartie);
+            stmt.setString(2,nomSauvegarde);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {idSauvegarde = rs.getInt("idsauvegarde");}
             stmt.close();
             
+            System.out.println("\n\n" + idSauvegarde + "\n\n");
+            
             if (idSauvegarde == -1) {
                 
                 //find a free id for new sauvegarde
-                query = "SELECT MAX idsauvegarde FROM sauvegarde";
+                query = "SELECT MAX(idsauvegarde) AS idmax FROM sauvegarde";
                 stmt = this.connection.prepareStatement( query );
                 rs = stmt.executeQuery();
-                if (rs.next()) {idSauvegarde = rs.getInt("idsauvegarde") + 1;}
+                if (rs.next()) {idSauvegarde = rs.getInt("idmax") + 1;}
                 else {idSauvegarde = 1;}
                 stmt.close();
                 
                 //create a new sauvegarde
-                query = "INSERT INTO sauvegarde (iidsauvegarde, dpartie, nomsauvegarde) VALUES (?,?,?)";
+                query = "INSERT INTO sauvegarde (idsauvegarde, idpartie, nomsauvegarde) VALUES (?,?,?)";
                 stmt = this.connection.prepareStatement( query );
                 stmt.setInt(1,idSauvegarde);
                 stmt.setInt(2,idPartie);
@@ -203,19 +206,44 @@ public class DatabaseTools {
                 stmt.executeUpdate();
                 stmt.close();
             }
+            else {
+                // Remove existing elements de jeu for the sauvegarde
+                String deletePersonnage = "DELETE FROM personnage WHERE idmonde IN (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
+                String deleteMonstre    = "DELETE FROM monstre WHERE idmonde IN (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
+                String deleteObjet      = "DELETE FROM objet WHERE idmonde IN (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
+                String deleteMonde      = "DELETE FROM monde WHERE idsauvegarde = ?";
+                
+                PreparedStatement stmt1 = this.connection.prepareStatement(deletePersonnage);
+                stmt1.setInt(1,idSauvegarde);
+                stmt1.executeUpdate();
+                stmt1.close();
+                
+                PreparedStatement stmt2 = this.connection.prepareStatement(deleteMonstre);
+                stmt2.setInt(1,idSauvegarde);
+                stmt2.executeUpdate();
+                stmt2.close();
+                
+                PreparedStatement stmt3 = this.connection.prepareStatement(deleteObjet);
+                stmt3.setInt(1,idSauvegarde);
+                stmt3.executeUpdate();
+                stmt3.close();
+                
+                PreparedStatement stmt4 = this.connection.prepareStatement(deleteMonde);
+                stmt4.setInt(1,idSauvegarde);
+                stmt4.executeUpdate();
+                stmt4.close();
+                
+            }
             this.disconnect();
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        // Remove existing elements de jeu for the sauvegarde
-        monde.removeFromDatabase(this.connection);
-        
         // Save world's elementdejeu in database
-        monde.saveToDatabase(this.connection, nomPartie, nomSauvegarde);
+        //monde.saveToDatabase(this.connection, nomPartie, nomSauvegarde);
         
         // Save player infos and the player's creature infos for this partie
-        
+        //monde.savePlayerInfo();
     }
 
     /**

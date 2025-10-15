@@ -106,6 +106,30 @@ public class World {
         this.setWidth(width);
     }
 
+    public int getRoundNo() {
+        return roundNo;
+    }
+
+    public void setRoundNo(int roundNo) {
+        this.roundNo = roundNo;
+    }
+
+    public Joueur getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(Joueur player) {
+        this.player = player;
+    }
+
+    public List<ElementDeJeu> getRoundElements() {
+        return roundElements;
+    }
+
+    public void setRoundElements(List<ElementDeJeu> roundElements) {
+        this.roundElements = roundElements;
+    }
+
     /**
      * Check element can be created
      *
@@ -292,4 +316,11 @@ public class World {
             // get world for Player ID
         }
     }
+    
+//    public void savePlayerInfo() {
+//        Personnage p = this.player.getPersonnage();
+//        try {
+//            query = "UPDATE personngae SET WHERE estJoueur";
+//        }
+//    }
 }
