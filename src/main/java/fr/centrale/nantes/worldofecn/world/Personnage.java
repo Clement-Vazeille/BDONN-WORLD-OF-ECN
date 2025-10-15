@@ -7,9 +7,15 @@
  * -------------------------------------------------------------------------------- */
 package fr.centrale.nantes.worldofecn.world;
 
+import fr.centrale.nantes.worldofecn.DatabaseTools;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -34,12 +40,30 @@ private static final String METIERPAYSAN = "Paysan";
 
 private String race;
     private String metier;
+    private String nom;
+    private String genre;
 
-    private float pourcentParade;
-    private float valeurParade;
-    private float pMagieMax;
-    private float pMagie;
-    private float portee;
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    private int pourcentParade;
+    private int valeurParade;
+    private int pMagieMax;
+    private int pMagie;
+    private int portee;
 
     private int nbFleches;
 
@@ -123,6 +147,8 @@ private String race;
         this.race = UNDEFINED;
         this.metier = UNDEFINED;
         this.nbFleches = 0;
+        this.nom = "Pierre";
+        this.genre = "H";
     }
 
     /**
@@ -168,7 +194,7 @@ private String race;
      *
      * @return
      */
-    public float getPourcentParade() {
+    public int getPourcentParade() {
         return pourcentParade;
     }
 
@@ -176,7 +202,7 @@ private String race;
      *
      * @param pourcentParade
      */
-    public void setPourcentParade(float pourcentParade) {
+    public void setPourcentParade(int pourcentParade) {
         this.pourcentParade = pourcentParade;
     }
 
@@ -184,7 +210,7 @@ private String race;
      *
      * @return
      */
-    public float getValeurParade() {
+    public int getValeurParade() {
         return valeurParade;
     }
 
@@ -192,7 +218,7 @@ private String race;
      *
      * @param valeurParade
      */
-    public void setValeurParade(float valeurParade) {
+    public void setValeurParade(int valeurParade) {
         this.valeurParade = valeurParade;
     }
 
@@ -200,7 +226,7 @@ private String race;
      *
      * @return
      */
-    public float getPMagieMax() {
+    public int getPMagieMax() {
         return pMagieMax;
     }
 
@@ -208,7 +234,7 @@ private String race;
      *
      * @param pMagieMax
      */
-    public void setPMagieMax(float pMagieMax) {
+    public void setPMagieMax(int pMagieMax) {
         this.pMagieMax = pMagieMax;
     }
 
@@ -216,7 +242,7 @@ private String race;
      *
      * @return
      */
-    public float getPMagie() {
+    public int getPMagie() {
         return pMagie;
     }
 
@@ -224,7 +250,7 @@ private String race;
      *
      * @param pMagie
      */
-    public void setPMagie(float pMagie) {
+    public void setPMagie(int pMagie) {
         this.pMagie = pMagie;
     }
 
@@ -232,7 +258,7 @@ private String race;
      *
      * @return
      */
-    public float getPortee() {
+    public int getPortee() {
         return portee;
     }
 
@@ -240,7 +266,7 @@ private String race;
      *
      * @param portee
      */
-    public void setPortee(float portee) {
+    public void setPortee(int portee) {
         this.portee = portee;
     }
 
@@ -323,70 +349,70 @@ private String race;
     private void setRaceCaracteristiques() {
         switch (this.getRace()) {
             case RACEHUMAIN :
-                this.setPourcentAttaque(30.0f);
-                this.setDegatsAttaque(2.0f);
-                this.setPourcentParade(10.0f);
-                this.setValeurParade(0.0f);
-                this.setPourcentEsquive(10.0f);
-                this.setAbsorbe(0.0f);
-                this.setPVieMax(20.0f);
-                this.setPMagieMax(20.0f);
-                this.setPortee(1.0f);
+                this.setPourcentAttaque(30);
+                this.setDegatsAttaque(2);
+                this.setPourcentParade(10);
+                this.setValeurParade(0);
+                this.setPourcentEsquive(10);
+                this.setAbsorbe(0);
+                this.setPVieMax(20);
+                this.setPMagieMax(20);
+                this.setPortee(1);
                 break;
             case RACENAIN :
-                this.setPourcentAttaque(40.0f);
-                this.setDegatsAttaque(3.0f);
-                this.setPourcentParade(10.0f);
-                this.setValeurParade(1.0f);
-                this.setPourcentEsquive(0.0f);
-                this.setAbsorbe(1.0f);
-                this.setPVieMax(25.0f);
-                this.setPMagieMax(10.0f);
-                this.setPortee(1.0f);
+                this.setPourcentAttaque(40);
+                this.setDegatsAttaque(3);
+                this.setPourcentParade(10);
+                this.setValeurParade(1);
+                this.setPourcentEsquive(0);
+                this.setAbsorbe(1);
+                this.setPVieMax(25);
+                this.setPMagieMax(10);
+                this.setPortee(1);
                 break;
             case RACEELFE :
-                this.setPourcentAttaque(25.0f);
-                this.setDegatsAttaque(2.0f);
-                this.setPourcentParade(15.0f);
-                this.setValeurParade(0.0f);
-                this.setPourcentEsquive(20.0f);
-                this.setAbsorbe(0.0f);
-                this.setPVieMax(30.0f);
-                this.setPMagieMax(30.0f);
-                this.setPortee(1.0f);
+                this.setPourcentAttaque(25);
+                this.setDegatsAttaque(2);
+                this.setPourcentParade(15);
+                this.setValeurParade(0);
+                this.setPourcentEsquive(20);
+                this.setAbsorbe(0);
+                this.setPVieMax(30);
+                this.setPMagieMax(30);
+                this.setPortee(1);
                 break;
             case RACEGOBELIN :
-                this.setPourcentAttaque(30.0f);
-                this.setDegatsAttaque(2.0f);
-                this.setPourcentParade(10.0f);
-                this.setValeurParade(0.0f);
-                this.setPourcentEsquive(10.0f);
-                this.setAbsorbe(0.0f);
-                this.setPVieMax(30.0f);
-                this.setPMagieMax(10.0f);
-                this.setPortee(1.0f);
+                this.setPourcentAttaque(30);
+                this.setDegatsAttaque(2);
+                this.setPourcentParade(10);
+                this.setValeurParade(0);
+                this.setPourcentEsquive(10);
+                this.setAbsorbe(0);
+                this.setPVieMax(30);
+                this.setPMagieMax(10);
+                this.setPortee(1);
                 break;
             case RACETROLL :
-                this.setPourcentAttaque(40.0f);
-                this.setDegatsAttaque(4.0f);
-                this.setPourcentParade(0.0f);
-                this.setValeurParade(0.0f);
-                this.setPourcentEsquive(0.0f);
-                this.setAbsorbe(2.0f);
-                this.setPVieMax(30.0f);
-                this.setPMagieMax(0.0f);
-                this.setPortee(1.0f);
+                this.setPourcentAttaque(40);
+                this.setDegatsAttaque(4);
+                this.setPourcentParade(0);
+                this.setValeurParade(0);
+                this.setPourcentEsquive(0);
+                this.setAbsorbe(2);
+                this.setPVieMax(30);
+                this.setPMagieMax(0);
+                this.setPortee(1);
                 break;
             default : // UNDEFINED
-                this.setPourcentAttaque(0.0f);
-                this.setDegatsAttaque(0.0f);
-                this.setPourcentParade(0.0f);
-                this.setValeurParade(0.0f);
-                this.setPourcentEsquive(0.0f);
-                this.setAbsorbe(0.0f);
-                this.setPVieMax(0.0f);
-                this.setPMagieMax(0.0f);
-                this.setPortee(1.0f);
+                this.setPourcentAttaque(0);
+                this.setDegatsAttaque(0);
+                this.setPourcentParade(0);
+                this.setValeurParade(0);
+                this.setPourcentEsquive(0);
+                this.setAbsorbe(0);
+                this.setPVieMax(0);
+                this.setPMagieMax(0);
+                this.setPortee(1);
                 break;
         }
         this.setPVie(this.getPVieMax());
@@ -396,44 +422,44 @@ private String race;
     private void addMetierCaracteristiques() {
         switch (this.getMetier()) {
             case METIERGUERRIER :
-                this.setPourcentAttaque(this.getPourcentAttaque() + 10.0f);
-                this.setDegatsAttaque(this.getDegatsAttaque() + 2.0f);
-                this.setPourcentParade(this.getPourcentParade() + 20.0f);
-                this.setValeurParade(this.getValeurParade() + 5.0f);
-                this.setPVieMax(this.getPVieMax() + 5.0f);
+                this.setPourcentAttaque(this.getPourcentAttaque() + 10);
+                this.setDegatsAttaque(this.getDegatsAttaque() + 2);
+                this.setPourcentParade(this.getPourcentParade() + 20);
+                this.setValeurParade(this.getValeurParade() + 5);
+                this.setPVieMax(this.getPVieMax() + 5);
                 break;
             case METIERARCHER :
-                this.setPourcentAttaque(this.getPourcentAttaque() + 10.0f);
-                this.setDegatsAttaque(this.getDegatsAttaque() + 1.0f);
-                this.setPortee(3.0f);
+                this.setPourcentAttaque(this.getPourcentAttaque() + 10);
+                this.setDegatsAttaque(this.getDegatsAttaque() + 1);
+                this.setPortee(3);
                 break;
             case METIERARBALETRIER :
-                this.setPourcentAttaque(this.getPourcentAttaque() + 10.0f);
-                this.setDegatsAttaque(this.getDegatsAttaque() + 3.0f);
-                this.setPortee(3.0f);
+                this.setPourcentAttaque(this.getPourcentAttaque() + 10);
+                this.setDegatsAttaque(this.getDegatsAttaque() + 3);
+                this.setPortee(3);
                 break;
             case METIERMAGE :
-                this.setPortee(4.0f);
+                this.setPortee(4);
                 break;
             case METIERPRETRE :
-                this.setPortee(3.0f);
+                this.setPortee(3);
                 break;
             case METIERPALADIN :
-                this.setPourcentAttaque(this.getPourcentAttaque() + 5.0f);
-                this.setDegatsAttaque(this.getDegatsAttaque() + 2.0f);
-                this.setPourcentParade(this.getPourcentParade() + 20.0f);
-                this.setValeurParade(this.getValeurParade() + 5.0f);
-                this.setPVieMax(this.getPVieMax() + 5.0f);
-                this.setPortee(2.5f);
+                this.setPourcentAttaque(this.getPourcentAttaque() + 5);
+                this.setDegatsAttaque(this.getDegatsAttaque() + 2);
+                this.setPourcentParade(this.getPourcentParade() + 20);
+                this.setValeurParade(this.getValeurParade() + 5);
+                this.setPVieMax(this.getPVieMax() + 5);
+                this.setPortee(2);
                 break;
             case METIERVOLEUR :
-                this.setPourcentAttaque(this.getPourcentAttaque() + 15.0f);
-                this.setDegatsAttaque(this.getDegatsAttaque() + 1.0f);
-                this.setPVieMax(this.getPVieMax() + 5.0f);
+                this.setPourcentAttaque(this.getPourcentAttaque() + 15);
+                this.setDegatsAttaque(this.getDegatsAttaque() + 1);
+                this.setPVieMax(this.getPVieMax() + 5);
                 break;
             case METIERPAYSAN :
-                this.setAbsorbe(this.getAbsorbe()+ 5.0f);
-                this.setPVieMax(this.getPVieMax() + 5.0f);
+                this.setAbsorbe(this.getAbsorbe()+ 5);
+                this.setPVieMax(this.getPVieMax() + 5);
                 break;
             default : // UNDEFINED
                 break;
@@ -443,9 +469,53 @@ private String race;
     }
 
     @Override
-    public Integer saveToDatabase(Connection connection) {
+    public Integer saveToDatabase(Connection connection, Integer worldID) {
         Integer id = -1;
 
+            String queryFindPersonnageID = "Select COUNT(*) AS nbpersonnage FROM personnage";
+            String queryInsert = "INSERT INTO personnage VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            
+            try{
+            PreparedStatement stmtFindPersonnageID = connection.prepareStatement(queryFindPersonnageID);
+            PreparedStatement stmtInsert = connection.prepareStatement(queryInsert);
+            
+            ResultSet rsMonstreID = stmtFindPersonnageID.executeQuery();
+            if (rsMonstreID.next()) {
+                id = Integer.parseInt(rsMonstreID.getString("nbpersonnage"))+1;
+            }
+            else{
+                return id;
+            }
+            
+            stmtInsert.setInt(1,id);
+            stmtInsert.setInt(2,worldID); 
+            stmtInsert.setString(3,this.getNom());
+            stmtInsert.setString(4,this.getGenre());
+            stmtInsert.setString(5,this.getRace());
+            stmtInsert.setString(6,this.getMetier());
+            stmtInsert.setInt(7,this.getPosition().getX());
+            stmtInsert.setInt(8,this.getPosition().getY());
+            stmtInsert.setInt(9,this.getPVieMax());
+            stmtInsert.setInt(10,this.getPVie());
+            stmtInsert.setInt(11,this.getDegatsAttaque());
+            stmtInsert.setInt(12,this.getPourcentAttaque());
+            stmtInsert.setInt(13,this.getPourcentParade());
+            stmtInsert.setInt(14,this.getValeurParade());
+            stmtInsert.setInt(15,this.getPMagieMax());
+            stmtInsert.setInt(16,this.getPMagie());
+            stmtInsert.setInt(17,this.getPortee());
+            stmtInsert.setInt(18,this.getNbFleches());
+            stmtInsert.executeUpdate();
+            
+            
+            stmtFindPersonnageID.close();
+            stmtInsert.close();
+            
+        }
+        catch (SQLException ex) {
+                Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        
         return id;
     }
 

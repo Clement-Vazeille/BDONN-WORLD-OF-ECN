@@ -60,9 +60,10 @@ public abstract class ElementDeJeu {
     /**
      * Save element to database
      * @param connection
+     * @param worldID
      * @return ID in the database
      */
-    public abstract Integer saveToDatabase(Connection connection);
+    public abstract Integer saveToDatabase(Connection connection, Integer worldID);
     
     /**
      * Get element from database

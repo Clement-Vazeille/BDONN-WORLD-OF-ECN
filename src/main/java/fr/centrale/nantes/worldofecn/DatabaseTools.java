@@ -243,7 +243,7 @@ public class DatabaseTools {
         //monde.saveToDatabase(this.connection, nomPartie, nomSauvegarde);
         
         // Save player infos and the player's creature infos for this partie
-        //monde.savePlayerInfo();
+        monde.saveToDatabase(this.connection, nomPartie, nomSauvegarde);
     }
 
     /**

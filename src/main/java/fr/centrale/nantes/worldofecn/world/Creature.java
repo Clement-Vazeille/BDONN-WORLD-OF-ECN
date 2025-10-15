@@ -15,12 +15,12 @@ import java.sql.Connection;
  */
 public abstract class Creature extends ElementDeJeu {
     
-    private float pourcentAttaque;
-    private float degatsAttaque;
-    private float pourcentEsquive;
-    private float absorbe;
-    private float pVieMax;
-    private float pVie;
+    private int pourcentAttaque;
+    private int degatsAttaque;
+    private int pourcentEsquive;
+    private int absorbe;
+    private int pVieMax;
+    private int pVie;
 
     /**
      * Constructor for Create
@@ -34,7 +34,7 @@ public abstract class Creature extends ElementDeJeu {
      * Get PourcentAttaque
      * @return
      */
-    public float getPourcentAttaque() {
+    public int getPourcentAttaque() {
         return pourcentAttaque;
     }
 
@@ -42,7 +42,7 @@ public abstract class Creature extends ElementDeJeu {
      * Set PourcentAttaque
      * @param pourcentAttaque
      */
-    public void setPourcentAttaque(float pourcentAttaque) {
+    public void setPourcentAttaque(int pourcentAttaque) {
         this.pourcentAttaque = pourcentAttaque;
     }
 
@@ -50,7 +50,7 @@ public abstract class Creature extends ElementDeJeu {
      * Get DegatsAttaque
      * @return
      */
-    public float getDegatsAttaque() {
+    public int getDegatsAttaque() {
         return degatsAttaque;
     }
 
@@ -58,7 +58,7 @@ public abstract class Creature extends ElementDeJeu {
      * Set DegatsAttaque
      * @param degatsAttaque
      */
-    public void setDegatsAttaque(float degatsAttaque) {
+    public void setDegatsAttaque(int degatsAttaque) {
         this.degatsAttaque = degatsAttaque;
     }
 
@@ -66,7 +66,7 @@ public abstract class Creature extends ElementDeJeu {
      * Get PourcentEsquive
      * @return
      */
-    public float getPourcentEsquive() {
+    public int getPourcentEsquive() {
         return pourcentEsquive;
     }
 
@@ -74,7 +74,7 @@ public abstract class Creature extends ElementDeJeu {
      * Set PourcentEsquive
      * @param pourcentEsquive
      */
-    public void setPourcentEsquive(float pourcentEsquive) {
+    public void setPourcentEsquive(int pourcentEsquive) {
         this.pourcentEsquive = pourcentEsquive;
     }
 
@@ -82,7 +82,7 @@ public abstract class Creature extends ElementDeJeu {
      * Get Absorbe Degats
      * @return
      */
-    public float getAbsorbe() {
+    public int getAbsorbe() {
         return absorbe;
     }
 
@@ -90,7 +90,7 @@ public abstract class Creature extends ElementDeJeu {
      * Set Absorbe Degats
      * @param absorbe
      */
-    public void setAbsorbe(float absorbe) {
+    public void setAbsorbe(int absorbe) {
         this.absorbe = absorbe;
     }
 
@@ -98,7 +98,7 @@ public abstract class Creature extends ElementDeJeu {
      * Get PVieMax
      * @return
      */
-    public float getPVieMax() {
+    public int getPVieMax() {
         return pVieMax;
     }
 
@@ -106,7 +106,7 @@ public abstract class Creature extends ElementDeJeu {
      * Set PVieMax
      * @param pVieMax
      */
-    public void setPVieMax(float pVieMax) {
+    public void setPVieMax(int pVieMax) {
         this.pVieMax = pVieMax;
         if (this.getPVie() > pVieMax) {
             this.pVie = pVieMax;
@@ -117,7 +117,7 @@ public abstract class Creature extends ElementDeJeu {
      * Get tPVie
      * @return
      */
-    public float getPVie() {
+    public int getPVie() {
         return pVie;
     }
 
@@ -125,7 +125,7 @@ public abstract class Creature extends ElementDeJeu {
      * Set tPVie
      * @param pVie
      */
-    public void setPVie(float pVie) {
+    public void setPVie(int pVie) {
         this.pVie = pVie;
         if (this.getPVieMax() < pVie) {
             this.pVie = this.getPVieMax();
