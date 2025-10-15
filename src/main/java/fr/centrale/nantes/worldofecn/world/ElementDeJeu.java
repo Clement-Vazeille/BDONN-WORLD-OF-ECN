@@ -40,6 +40,8 @@ public abstract class ElementDeJeu {
         }
         this.position = newPoint2D;
     }
+    
+    
 
     /**
      * Get element location

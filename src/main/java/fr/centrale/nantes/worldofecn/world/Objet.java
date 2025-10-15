@@ -52,6 +52,13 @@ public class Objet extends ElementDeJeu {
         typesList.add(OBJETROCHER);
         typesList.add(OBJETNUAGETOXIQUE);
     }
+    
+    public Objet(String typeobjet, int coordx, int coordy, World world) {
+        super(world);
+        this.type = typeobjet;
+        super.setPosition(new Point2D(coordx,coordy));
+        
+    }
 
     /**
      *

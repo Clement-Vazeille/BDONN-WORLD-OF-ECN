@@ -30,6 +30,16 @@ public abstract class Creature extends ElementDeJeu {
         super(world);
     }
 
+    public Creature(int pourcentAttaque, int degatsAttaque, int pourcentEsquive, int absorbe, int pVieMax, int pVie, World world) {
+        super(world);
+        this.pourcentAttaque = pourcentAttaque;
+        this.degatsAttaque = degatsAttaque;
+        this.pourcentEsquive = pourcentEsquive;
+        this.absorbe = absorbe;
+        this.pVieMax = pVieMax;
+        this.pVie = pVie;
+    }
+
     /**
      * Get PourcentAttaque
      * @return
@@ -131,6 +141,8 @@ public abstract class Creature extends ElementDeJeu {
             this.pVie = this.getPVieMax();
         }
     }
+    
+    
     
     /**
      *
