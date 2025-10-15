@@ -14,6 +14,8 @@ import java.sql.SQLException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -107,7 +109,7 @@ public class DatabaseTools {
 
             Integer resultID;
             if (rs.next()) {
-                resultID = Integer.parseInt(rs.getString("idjoueur"));
+                resultID = Integer.valueOf(rs.getString("idjoueur"));
                 return resultID;
             }
             stmt.close();
@@ -130,11 +132,115 @@ public class DatabaseTools {
         
         // Create a new "partie" in database if it does not exists and link it to the player
         // Save partie's infos in the sauvegarde (height, width, ...) if necessary
+        int idPartie = -1;        
+        try {
+            this.connect();
+            
+            //find sauvegarde for the partie if exist
+            String query = "SELECT idpartie FROM partie WHERE nompartie=?";
+            PreparedStatement stmt = this.connection.prepareStatement( query );
+            stmt.setString(1,nomPartie);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {idPartie = rs.getInt("idpartie");}
+            stmt.close();
+            
+            if (idPartie == -1) {
+                
+                //find a free id for new partie
+                query = "SELECT MAX(idpartie) AS idmax FROM partie";
+                stmt = this.connection.prepareStatement( query );
+                rs = stmt.executeQuery();
+                if (rs.next()) {idPartie = rs.getInt("idmax") + 1;}
+                else {idPartie = 1;}
+                stmt.close();
+                
+                //create a new partie
+                query = "INSERT INTO partie (idpartie, nompartie, taillex, tailley, idjoueur) VALUES (?,?,?,?,?)";
+                stmt = this.connection.prepareStatement( query );
+                stmt.setInt(1,idPartie);
+                stmt.setString(2,nomPartie);
+                stmt.setInt(3,monde.getWidth());
+                stmt.setInt(4,monde.getHeight());
+                stmt.setInt(5,idJoueur);
+                stmt.executeUpdate();
+                stmt.close();
+            }
+            this.disconnect();
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         // Create a new sauvegarde if it does not exist for the partie
         // Update sauvegarde infos for the partie
-        // Remove existing elements de jeu for the sauvegarde
+        int idSauvegarde = -1;
+        try {
+            this.connect();
+            
+            //find sauvegarde for the partie if exist
+            String query = "SELECT idsauvegarde FROM sauvegarde WHERE idpartie=? AND nomsauvegarde=?";
+            PreparedStatement stmt = this.connection.prepareStatement( query );
+            stmt.setInt(1,idPartie);
+            stmt.setString(2,nomSauvegarde);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {idSauvegarde = rs.getInt("idsauvegarde");}
+            stmt.close();
+            
+            System.out.println("\n\n" + idSauvegarde + "\n\n");
+            
+            if (idSauvegarde == -1) {
+                
+                //find a free id for new sauvegarde
+                query = "SELECT MAX(idsauvegarde) AS idmax FROM sauvegarde";
+                stmt = this.connection.prepareStatement( query );
+                rs = stmt.executeQuery();
+                if (rs.next()) {idSauvegarde = rs.getInt("idmax") + 1;}
+                else {idSauvegarde = 1;}
+                stmt.close();
+                
+                //create a new sauvegarde
+                query = "INSERT INTO sauvegarde (idsauvegarde, idpartie, nomsauvegarde) VALUES (?,?,?)";
+                stmt = this.connection.prepareStatement( query );
+                stmt.setInt(1,idSauvegarde);
+                stmt.setInt(2,idPartie);
+                stmt.setString(3,nomSauvegarde);
+                stmt.executeUpdate();
+                stmt.close();
+            }
+            else {
+                // Remove existing elements de jeu for the sauvegarde
+                String deletePersonnage = "DELETE FROM personnage WHERE idmonde IN (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
+                String deleteMonstre    = "DELETE FROM monstre WHERE idmonde IN (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
+                String deleteObjet      = "DELETE FROM objet WHERE idmonde IN (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
+                String deleteMonde      = "DELETE FROM monde WHERE idsauvegarde = ?";
+                
+                PreparedStatement stmt1 = this.connection.prepareStatement(deletePersonnage);
+                stmt1.setInt(1,idSauvegarde);
+                stmt1.executeUpdate();
+                stmt1.close();
+                
+                PreparedStatement stmt2 = this.connection.prepareStatement(deleteMonstre);
+                stmt2.setInt(1,idSauvegarde);
+                stmt2.executeUpdate();
+                stmt2.close();
+                
+                PreparedStatement stmt3 = this.connection.prepareStatement(deleteObjet);
+                stmt3.setInt(1,idSauvegarde);
+                stmt3.executeUpdate();
+                stmt3.close();
+                
+                PreparedStatement stmt4 = this.connection.prepareStatement(deleteMonde);
+                stmt4.setInt(1,idSauvegarde);
+                stmt4.executeUpdate();
+                stmt4.close();
+                
+            }
+            this.disconnect();
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         // Save world's elementdejeu in database
+        //monde.saveToDatabase(this.connection, nomPartie, nomSauvegarde);
         
         // Save player infos and the player's creature infos for this partie
         monde.saveToDatabase(this.connection, nomPartie, nomSauvegarde);
