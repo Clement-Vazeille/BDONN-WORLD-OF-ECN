@@ -137,9 +137,10 @@ public class DatabaseTools {
             this.connect();
             
             //find sauvegarde for the partie if exist
-            String query = "SELECT idpartie FROM partie WHERE nompartie=?";
+            String query = "SELECT idpartie FROM partie WHERE idjoueur=? AND nompartie=?";
             PreparedStatement stmt = this.connection.prepareStatement( query );
-            stmt.setString(1,nomPartie);
+            stmt.setInt(1,idJoueur);
+            stmt.setString(2,nomPartie);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {idPartie = rs.getInt("idpartie");}
             stmt.close();
@@ -208,9 +209,9 @@ public class DatabaseTools {
             }
             else {
                 // Remove existing elements de jeu for the sauvegarde
-                String deletePersonnage = "DELETE FROM personnage WHERE idmonde IN (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
-                String deleteMonstre    = "DELETE FROM monstre WHERE idmonde IN (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
-                String deleteObjet      = "DELETE FROM objet WHERE idmonde IN (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
+                String deletePersonnage = "DELETE FROM personnage WHERE idmonde = (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
+                String deleteMonstre    = "DELETE FROM monstre WHERE idmonde = (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
+                String deleteObjet      = "DELETE FROM objet WHERE idmonde = (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
                 String deleteMonde      = "DELETE FROM monde WHERE idsauvegarde = ?";
                 
                 PreparedStatement stmt1 = this.connection.prepareStatement(deletePersonnage);
@@ -254,34 +255,117 @@ public class DatabaseTools {
      * @return monde
      */
     public World readWorld(Integer idJoueur, String nomPartie, String nomSauvegarde) {
-        World monde = new World();
+        World monde;
         
         // Retreive partie infos for the player
-        int idPartie=0;
+        int idPartie=-1;
+        int idSauvegarde = -1;
         try {
             this.connect();
             
             String queryfindidpartie = "SELECT idpartie FROM partie WHERE idjoueur=? AND nompartie=?";
-            String queryfindidsauvegarde = "SELECT idpartie FROM partie WHERE idjoueur=? AND nompartie=?";
-            PreparedStatement stmt = this.connection.prepareStatement(queryfindidpartie);
-            stmt.setInt(1,idJoueur);
-            stmt.setString(2,nomPartie);
+            String queryfindidsauvegarde = "SELECT idsauvegarde FROM sauvegarde WHERE idpartie=? AND nomsauvegarde=?";
+            PreparedStatement stmtidpartie = this.connection.prepareStatement(queryfindidpartie);
+            PreparedStatement stmtidsauvegarde = this.connection.prepareStatement(queryfindidsauvegarde);
+            stmtidpartie.setInt(1,idJoueur);
+            stmtidpartie.setString(2,nomPartie);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {idPartie = rs.getInt("idpartie");}
-            stmt.close();
+            
+            stmtidsauvegarde.setInt(1,idPartie);
+            stmtidsauvegarde.setString(2,nomSauvegarde);
+            
+            ResultSet rssauvegarde = stmtidsauvegarde.executeQuery();
+            if (rssauvegarde.next()) {idSauvegarde = rssauvegarde.getInt("idsauvegarde");}
+            
+            stmtidpartie.close();
+            stmtidsauvegarde.close();
         }
         catch (SQLException ex) {
             Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         // Retreive sauvegarde infos for the partie
-
+        
         // Retreive world infos
+        int idMonde = -1;
+        int tailleX = -1;
+        int tailleY = -1;
+        try {
+            this.connect();
+            
+            String queryfindidpartie = "SELECT idmonde FROM monde WHERE idsauvegarde=?";
+            String queryfindtaillemonde = "SELECT taillex, tailley FROM partie WHERE idpartie=?";
+            
+            PreparedStatement stmtidmonde = this.connection.prepareStatement(queryfindidpartie);
+            PreparedStatement stmttaillemonde = this.connection.prepareStatement(queryfindtaillemonde);
+            stmtidmonde.setInt(1,idSauvegarde);
+            ResultSet rs = stmtidmonde.executeQuery();
+            if (rs.next()) {
+                idMonde = rs.getInt("idmonde");
+            }
+            
+            stmttaillemonde.setInt(1,idPartie);
+            ResultSet rsTailleMonde = stmtidmonde.executeQuery();
+            if (rs.next()) {
+                tailleX = rsTailleMonde.getInt("taillex");
+                tailleY = rsTailleMonde.getInt("tailley");
+            }
+            
+            stmtidmonde.close();
+        }
+        catch (SQLException ex) {
+            Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         // Generate object world according to the infos
+        monde = new World(tailleX,tailleY);
         
         // Retreive element de jeu from sauvegarde
         // Generate approprite objects
         // Link objects to the world
+        try {
+            this.connect();
+            
+            //objets
+            String queryfindobjets = "SELECT typeObjet,coordx,coordy FROM monde WHERE idsmonde=?";
+            String queryfindmonstres = "SELECT typemonstre,coordx,coordy,pvmax,pvactuels,degatsattaque,"
+                    + "pourcentageattaque,pourcentageparade,valeurparade FROM monde WHERE idsmonde=?";
+            String queryfindpersonnages = "SELECT idpersonnage,nom,genre,race,metier,coordx,coordy,pvmax,pvactuels,degatsattaque,"
+                    + "pourcentageattaque,pourcentageparade,valeurparade,pmmax,pmactuels,porteeattaque,nombrefleches"
+                    + " FROM monde WHERE idsmonde=?";
+            
+            PreparedStatement stmtobjets = this.connection.prepareStatement(queryfindobjets);
+            PreparedStatement stmtmonstres = this.connection.prepareStatement(queryfindmonstres);
+            PreparedStatement stmtpersonnages = this.connection.prepareStatement(queryfindpersonnages);
+            
+            
+            stmtobjets.setInt(1,idMonde);
+            stmtmonstres.setInt(1,idMonde);
+            stmtpersonnages.setInt(1,idMonde);
+            
+            ResultSet rso = stmtobjets.executeQuery();
+            while (rso.next()) {
+                Objet o = new Objet(rso.getInt("idmonde"),);
+                monde.addElementToList(o);
+            }   
+            
+            ResultSet rsm = stmtmonstres.executeQuery();
+            while (rso.next()) {
+                Monstre m = new Monstre(rsm.getInt("idmonde"),);
+                monde.addElementToList(m);
+            }   
+            
+            ResultSet rsp = stmtpersonnages.executeQuery();
+            while (rso.next()) {
+                Personnage p = new Personnage(rsp.getInt("idmonde"),);
+                monde.addElementToList(p);
+            }   
+            
+        }catch (SQLException ex) {
+            Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+            
+        }
         
         // Associate player with the player's creature
 
@@ -301,10 +385,38 @@ public class DatabaseTools {
         // TO BE DEFINED
         
         // Retreive partie infos for the player
+        int idPartie = -1;
+        try {
+            String query = "SELECT idpartie FROM partie WHERE idjoueur=? AND nompartie=?";
+            PreparedStatement stmt = this.connection.prepareStatement( query );
+            stmt.setInt(1,idJoueur);
+            stmt.setString(2,nomPartie);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {idPartie = rs.getInt("idpartie");}
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         // Retreive sauvegarde infos for the partie
+        int idSauvegarde = -1;
+        try {
+            String query = "SELECT idsauvegarde FROM sauvegarde WHERE idpartie=? AND nomsauvegarde=?";
+            PreparedStatement stmt = this.connection.prepareStatement( query );
+            stmt.setInt(1,idPartie);
+            stmt.setString(2,nomSauvegarde);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {idSauvegarde = rs.getInt("idsauvegarde");}
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
-        // remove elements de jeu linked to the sauvegarde
         // remove sauvegarde
         // remove if partie has no mode sauvegarde, remove partie
+        
+        
+        // remove elements de jeu linked to the sauvegarde
+        
     }
 }

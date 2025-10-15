@@ -45,6 +45,11 @@ public class World {
     public World() {
         this(20, 20);
     }
+    
+    public void addElementToList(ElementDeJeu e)
+    {
+        listElements.add(e);
+    }
 
     /**
      * Constructor for specific world size
