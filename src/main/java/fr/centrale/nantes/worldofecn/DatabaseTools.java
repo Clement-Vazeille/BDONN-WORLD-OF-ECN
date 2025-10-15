@@ -255,9 +255,25 @@ public class DatabaseTools {
      */
     public World readWorld(Integer idJoueur, String nomPartie, String nomSauvegarde) {
         World monde = new World();
-        // TO BE DEFINED
         
         // Retreive partie infos for the player
+        int idPartie=0;
+        try {
+            this.connect();
+            
+            String queryfindidpartie = "SELECT idpartie FROM partie WHERE idjoueur=? AND nompartie=?";
+            String queryfindidsauvegarde = "SELECT idpartie FROM partie WHERE idjoueur=? AND nompartie=?";
+            PreparedStatement stmt = this.connection.prepareStatement(queryfindidpartie);
+            stmt.setInt(1,idJoueur);
+            stmt.setString(2,nomPartie);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {idPartie = rs.getInt("idpartie");}
+            stmt.close();
+        }
+        catch (SQLException ex) {
+            Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         // Retreive sauvegarde infos for the partie
 
         // Retreive world infos
