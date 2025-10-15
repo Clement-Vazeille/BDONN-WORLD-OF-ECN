@@ -208,9 +208,9 @@ public class DatabaseTools {
             }
             else {
                 // Remove existing elements de jeu for the sauvegarde
-                String deletePersonnage = "DELETE FROM personnage WHERE idmonde IN (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
-                String deleteMonstre    = "DELETE FROM monstre WHERE idmonde IN (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
-                String deleteObjet      = "DELETE FROM objet WHERE idmonde IN (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
+                String deletePersonnage = "DELETE FROM personnage WHERE idmonde = (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
+                String deleteMonstre    = "DELETE FROM monstre WHERE idmonde = (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
+                String deleteObjet      = "DELETE FROM objet WHERE idmonde = (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
                 String deleteMonde      = "DELETE FROM monde WHERE idsauvegarde = ?";
                 
                 PreparedStatement stmt1 = this.connection.prepareStatement(deletePersonnage);
