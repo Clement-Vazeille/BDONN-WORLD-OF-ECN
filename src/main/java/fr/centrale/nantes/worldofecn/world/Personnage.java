@@ -92,6 +92,22 @@ private String race;
         metiersList.add(METIERPAYSAN);
     }
     
+    public Personnage(String nom, String genre, String race, String metier,
+                      int coordx, int coordy, int pvmax, int pvactuels, int degatsattaque,
+                      int pourcentageattaque, int pourcentageparade, int valeurparade,
+                      int pmmax, int pmactuels, int porteeattaque, int nombrefleches, World world) {
+        super(pourcentageattaque, degatsattaque, pourcentageparade, valeurparade, pvmax, pvactuels, world);
+        this.nom = nom;
+        this.genre = genre;
+        this.race = race;
+        this.metier = metier;
+        super.setPosition(new Point2D(coordx,coordy));
+        this.pMagieMax = pmmax;
+        this.pMagie = pmactuels;
+        this.portee = porteeattaque;
+        this.nbFleches = nombrefleches;
+    }
+    
     /**
      *
      * @return

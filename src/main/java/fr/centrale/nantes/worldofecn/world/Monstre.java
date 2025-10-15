@@ -47,6 +47,14 @@ public class Monstre extends Creature {
         racesList.add(RACEVACHE);
         racesList.add(RACELAPIN);
     }
+
+    public Monstre(String typemonstre, int coordx, int coordy,
+                   int pvmax, int pvactuels, int degatsattaque, int pourcentageattaque,
+                   int pourcentageparade, int valeurparade, World world) {
+        super(pourcentageattaque, degatsattaque, pourcentageparade, valeurparade, pvmax, pvactuels, world);
+        this.race = typemonstre;
+        super.setPosition(new Point2D(coordx,coordy));
+    }
     
     /**
      * Get nb races

@@ -214,25 +214,25 @@ public class DatabaseTools {
                 String deleteObjet      = "DELETE FROM objet WHERE idmonde = (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
                 String deleteMonde      = "DELETE FROM monde WHERE idsauvegarde = ?";
                 
-                PreparedStatement stmt1 = this.connection.prepareStatement(deletePersonnage);
-                stmt1.setInt(1,idSauvegarde);
-                stmt1.executeUpdate();
-                stmt1.close();
+                PreparedStatement stmtDeletePersonnage = this.connection.prepareStatement(deletePersonnage);
+                stmtDeletePersonnage.setInt(1,idSauvegarde);
+                stmtDeletePersonnage.executeUpdate();
+                stmtDeletePersonnage.close();
                 
-                PreparedStatement stmt2 = this.connection.prepareStatement(deleteMonstre);
-                stmt2.setInt(1,idSauvegarde);
-                stmt2.executeUpdate();
-                stmt2.close();
+                PreparedStatement stmtDeleteMonstre = this.connection.prepareStatement(deleteMonstre);
+                stmtDeleteMonstre.setInt(1,idSauvegarde);
+                stmtDeleteMonstre.executeUpdate();
+                stmtDeleteMonstre.close();
                 
-                PreparedStatement stmt3 = this.connection.prepareStatement(deleteObjet);
-                stmt3.setInt(1,idSauvegarde);
-                stmt3.executeUpdate();
-                stmt3.close();
+                PreparedStatement stmtDeleteObjet = this.connection.prepareStatement(deleteObjet);
+                stmtDeleteObjet.setInt(1,idSauvegarde);
+                stmtDeleteObjet.executeUpdate();
+                stmtDeleteObjet.close();
                 
-                PreparedStatement stmt4 = this.connection.prepareStatement(deleteMonde);
-                stmt4.setInt(1,idSauvegarde);
-                stmt4.executeUpdate();
-                stmt4.close();
+                PreparedStatement stmtDeleteMonde  = this.connection.prepareStatement(deleteMonde);
+                stmtDeleteMonde.setInt(1,idSauvegarde);
+                stmtDeleteMonde.executeUpdate();
+                stmtDeleteMonde.close();
                 
             }
             this.disconnect();
@@ -384,16 +384,18 @@ public class DatabaseTools {
         World monde = new World();
         // TO BE DEFINED
         
+        this.connect();
+        
         // Retreive partie infos for the player
         int idPartie = -1;
         try {
-            String query = "SELECT idpartie FROM partie WHERE idjoueur=? AND nompartie=?";
-            PreparedStatement stmt = this.connection.prepareStatement( query );
-            stmt.setInt(1,idJoueur);
-            stmt.setString(2,nomPartie);
-            ResultSet rs = stmt.executeQuery();
+            String searchIdPartie= "SELECT idpartie FROM partie WHERE idjoueur=? AND nompartie=?";
+            PreparedStatement stmtSearchIdPartie = this.connection.prepareStatement( searchIdPartie );
+            stmtSearchIdPartie.setInt(1,idJoueur);
+            stmtSearchIdPartie.setString(2,nomPartie);
+            ResultSet rs = stmtSearchIdPartie.executeQuery();
             if (rs.next()) {idPartie = rs.getInt("idpartie");}
-            stmt.close();
+            stmtSearchIdPartie.close();
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -401,22 +403,66 @@ public class DatabaseTools {
         // Retreive sauvegarde infos for the partie
         int idSauvegarde = -1;
         try {
-            String query = "SELECT idsauvegarde FROM sauvegarde WHERE idpartie=? AND nomsauvegarde=?";
-            PreparedStatement stmt = this.connection.prepareStatement( query );
-            stmt.setInt(1,idPartie);
-            stmt.setString(2,nomSauvegarde);
-            ResultSet rs = stmt.executeQuery();
+            String searchIdSauvegarde = "SELECT idsauvegarde FROM sauvegarde WHERE idpartie=? AND nomsauvegarde=?";
+            PreparedStatement stmtSearchIdSauvegarde = this.connection.prepareStatement( searchIdSauvegarde );
+            stmtSearchIdSauvegarde.setInt(1,idPartie);
+            stmtSearchIdSauvegarde.setString(2,nomSauvegarde);
+            ResultSet rs = stmtSearchIdSauvegarde.executeQuery();
             if (rs.next()) {idSauvegarde = rs.getInt("idsauvegarde");}
-            stmt.close();
+            stmtSearchIdSauvegarde.close();
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        // remove sauvegarde
-        // remove if partie has no mode sauvegarde, remove partie
         
-        
-        // remove elements de jeu linked to the sauvegarde
-        
+        if (idSauvegarde != -1) {
+            try {
+                // remove sauvegarde
+                String deleteSauvegarde = "DELETE FROM sauvegarde WHERE idsauvegarde = ?)";
+                PreparedStatement stmtDeleteSauvegarde = this.connection.prepareStatement(deleteSauvegarde);
+                stmtDeleteSauvegarde.setInt(1,idSauvegarde);
+                stmtDeleteSauvegarde.executeUpdate();
+                stmtDeleteSauvegarde.close();
+                
+                // remove elements de jeu linked to the sauvegarde
+                String deletePersonnage = "DELETE FROM personnage WHERE idmonde = (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
+                String deleteMonstre    = "DELETE FROM monstre WHERE idmonde = (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
+                String deleteObjet      = "DELETE FROM objet WHERE idmonde = (SELECT idmonde FROM monde WHERE idsauvegarde = ?)";
+                String deleteMonde      = "DELETE FROM monde WHERE idsauvegarde = ?";
+                
+                PreparedStatement stmtDeletePersonnage = this.connection.prepareStatement(deletePersonnage);
+                stmtDeletePersonnage.setInt(1,idSauvegarde);
+                stmtDeletePersonnage.executeUpdate();
+                stmtDeletePersonnage.close();
+                
+                PreparedStatement stmtDeleteMonstre = this.connection.prepareStatement(deleteMonstre);
+                stmtDeleteMonstre.setInt(1,idSauvegarde);
+                stmtDeleteMonstre.executeUpdate();
+                stmtDeleteMonstre.close();
+                
+                PreparedStatement stmtDeleteObjet = this.connection.prepareStatement(deleteObjet);
+                stmtDeleteObjet.setInt(1,idSauvegarde);
+                stmtDeleteObjet.executeUpdate();
+                stmtDeleteObjet.close();
+                
+                PreparedStatement stmtDeleteMonde  = this.connection.prepareStatement(deleteMonde);
+                stmtDeleteMonde.setInt(1,idSauvegarde);
+                stmtDeleteMonde.executeUpdate();
+                stmtDeleteMonde.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        // remove if partie has no more sauvegarde, remove partie
+        else {
+            try {
+                String deletePartie = "DELETE FROM partie WHERE idpartie = ?)";
+                PreparedStatement stmtDeletePartie = this.connection.prepareStatement(deletePartie);
+                stmtDeletePartie.setInt(1,idPartie);
+                stmtDeletePartie.executeUpdate();
+                stmtDeletePartie.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 }
