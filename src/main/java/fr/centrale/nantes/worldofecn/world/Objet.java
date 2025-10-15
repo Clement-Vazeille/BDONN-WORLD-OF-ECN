@@ -7,9 +7,15 @@
  * -------------------------------------------------------------------------------- */
 package fr.centrale.nantes.worldofecn.world;
 
+import fr.centrale.nantes.worldofecn.DatabaseTools;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -109,9 +115,41 @@ public class Objet extends ElementDeJeu {
     }
 
     @Override
-    public Integer saveToDatabase(Connection connection) {
+    public Integer saveToDatabase(Connection connection, Integer worldID) {
         Integer id = -1;
-
+        
+        
+            String queryFindObjetID = "Select COUNT(*) AS nbobjets FROM objet";
+            String queryInsert = "INSERT INTO objet VALUES (?,?,?,?,?)";
+            
+            try{
+            PreparedStatement stmtFindObjetID = connection.prepareStatement(queryFindObjetID);
+            PreparedStatement stmtInsert = connection.prepareStatement(queryInsert);
+            
+            ResultSet rsObjetID = stmtFindObjetID.executeQuery();
+            if (rsObjetID.next()) {
+                id = Integer.parseInt(rsObjetID.getString("nbobjets"))+1;
+            }
+            else{
+                return id;
+            }
+            
+            stmtInsert.setInt(1,id);
+            stmtInsert.setInt(2,worldID); 
+            stmtInsert.setString(3,this.getType());
+            stmtInsert.setInt(4,this.getPosition().getX());
+            stmtInsert.setInt(5,this.getPosition().getY());
+            stmtInsert.executeUpdate();
+            
+            
+            stmtFindObjetID.close();
+            stmtInsert.close();
+            
+        }
+        catch (SQLException ex) {
+                Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
         return id;
     }
 

@@ -137,7 +137,7 @@ public class DatabaseTools {
         // Save world's elementdejeu in database
         
         // Save player infos and the player's creature infos for this partie
-        
+        monde.saveToDatabase(this.connection, nomPartie, nomSauvegarde);
     }
 
     /**

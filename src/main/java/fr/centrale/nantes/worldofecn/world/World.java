@@ -7,12 +7,18 @@
  * -------------------------------------------------------------------------------- */
 package fr.centrale.nantes.worldofecn.world;
 
+import fr.centrale.nantes.worldofecn.DatabaseTools;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -270,8 +276,67 @@ public class World {
     public void saveToDatabase(Connection connection, String gameName, String saveName) {
         if (connection != null) {
             // Get Player ID
-
+            
             // Save world for Player ID
+            
+            //creation du world (pas de la partie
+            String queryFindSaveID = "Select idsauvegarde FROM Sauvegarde WHERE nomsauvegarde=?";
+            String queryFindWorldID = "Select COUNT(*) AS nbmondes FROM monde";
+            String queryInsert = "INSERT INTO monde VALUES (?,?,?)";
+            
+            Integer saveID=-1;
+        try{
+            PreparedStatement stmtFindSaveID = connection.prepareStatement(queryFindSaveID);
+            PreparedStatement stmtFindWorldID = connection.prepareStatement(queryFindWorldID);
+            PreparedStatement stmtInsert = connection.prepareStatement(queryInsert);
+            
+            stmtFindSaveID.setString(1,saveName);
+            
+            ResultSet rsSaveID = stmtFindSaveID.executeQuery();
+            if (rsSaveID.next()) {
+                saveID = Integer.parseInt(rsSaveID.getString("idsauvegarde"));
+            }
+            else{
+                return;
+            }
+            
+            ResultSet rsWorldID = stmtFindWorldID.executeQuery();
+            Integer worldID;
+            if (rsWorldID.next()) {
+                worldID = Integer.parseInt(rsWorldID.getString("nbmondes"))+1;
+            }
+            else{
+                return;
+            }
+            
+            int idpersonnageJoueur=-1;
+            //Save all elements from the world in the database
+            for(ElementDeJeu e:listElements)
+            {
+                int idelem = e.saveToDatabase(connection,saveID);
+                if(e == player.getPersonnage())
+                {
+                    idpersonnageJoueur = idelem;
+                }
+            }
+            
+            stmtInsert.setInt(1,worldID);
+            stmtInsert.setInt(2,saveID);
+            stmtInsert.setInt(3,idpersonnageJoueur);
+            stmtInsert.executeUpdate();
+            
+            
+            stmtFindSaveID.close();
+            stmtFindWorldID.close();
+            stmtInsert.close();
+            
+        }
+        catch (SQLException ex) {
+                Logger.getLogger(DatabaseTools.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        
+
+        
         }
     }
 
