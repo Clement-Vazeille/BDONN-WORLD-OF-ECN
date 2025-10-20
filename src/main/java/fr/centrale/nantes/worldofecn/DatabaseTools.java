@@ -20,7 +20,7 @@ import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import fr.centrale.nantes.worldofecn.world.World;
+import fr.centrale.nantes.worldofecn.world.*;
 
 /**
  * Manage database connectio, saves and retreive informations
@@ -269,7 +269,7 @@ public class DatabaseTools {
             PreparedStatement stmtidsauvegarde = this.connection.prepareStatement(queryfindidsauvegarde);
             stmtidpartie.setInt(1,idJoueur);
             stmtidpartie.setString(2,nomPartie);
-            ResultSet rs = stmt.executeQuery();
+            ResultSet rs = stmtidpartie.executeQuery();
             if (rs.next()) {idPartie = rs.getInt("idpartie");}
             
             stmtidsauvegarde.setInt(1,idPartie);
@@ -346,19 +346,26 @@ public class DatabaseTools {
             
             ResultSet rso = stmtobjets.executeQuery();
             while (rso.next()) {
-                Objet o = new Objet(rso.getInt("idmonde"),);
+                Objet o = new Objet(rso.getString("typeObjet"),rso.getInt("coordx"),rso.getInt("coordy"),monde);
                 monde.addElementToList(o);
             }   
             
             ResultSet rsm = stmtmonstres.executeQuery();
             while (rso.next()) {
-                Monstre m = new Monstre(rsm.getInt("idmonde"),);
+                Monstre m = new Monstre(rsm.getString("typeMonstre"),rsm.getInt("coordx"),rsm.getInt("coordy"),
+                rsm.getInt("pvmax"),rsm.getInt("pvactuels"),rsm.getInt("degatsattaque"),rsm.getInt("pourcentageattaque")
+                        ,rsm.getInt("pourcentageparade"),rsm.getInt("valeurparade"),monde);
                 monde.addElementToList(m);
             }   
             
             ResultSet rsp = stmtpersonnages.executeQuery();
             while (rso.next()) {
-                Personnage p = new Personnage(rsp.getInt("idmonde"),);
+                Personnage p = new Personnage(rsp.getString("nom"),rsp.getString("genre"),rsp.getString("race"),
+                        rsp.getString("metier"),rsm.getInt("coordx"),rsp.getInt("coordy"),
+                        rsp.getInt("pvmax"),rsm.getInt("pvactuels"),rsp.getInt("degatsattaque"),rsp.getInt("pourcentageattaque")
+                        ,rsp.getInt("pourcentageparade"),rsp.getInt("valeurparade"),
+                        rsp.getInt("pmmax"),rsm.getInt("pmactuels"),rsp.getInt("porteeattaque"),
+                        rsp.getInt("nombrefleche"),monde);
                 monde.addElementToList(p);
             }   
             
